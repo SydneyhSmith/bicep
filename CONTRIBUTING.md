@@ -2,7 +2,7 @@
 
 > The [Example Files](#example-files) are added to [Azure QuickStart Templates](https://github.com/Azure/azure-quickstart-templates), so we are not taking examples contributions anymore, but feel free to contribute to QuickStart templates repository.
 
-We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
+We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla). For more information about when to contribute check out the [Picking an Issue section](#picking-an-issue). 
 
 ## Getting Started
 
@@ -99,9 +99,25 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 ### 3rd party Syntax Highlighting libraries
 See [Syntax Highlighting Libraries](./docs/highlighting.md) for information on the various 3rd party highlighting libraries that Bicep supports, where they are used, and how to contribute to them.
 
-## Pull Requests
+## Picking an Issue
 
 If you'd like to start contributing to Bicep, you can search for issues tagged as "good first issue" [here](https://github.com/Azure/bicep/labels/good%20first%20issue).
+
+If there is a particular [feature](#feature-suggestions) or [bug](#bug-reports) you want to work on we have a process for ensuring that it is a good fit for Bicep. Here are the steps you can follow:
+
+1. Open an issue if one does not exist
+2. Issue gets triaged 
+  -	If we have planned work in this area, we will instead add it to a milestone 
+  -	If we are unsure that this should exist in Bicep, we will add a tag of either “Needs: Author Feedback”, “Needs: Upvote”, or “Needs: Discussion” 
+  -	If we think it may be appropriate for Bicep but needs a design, we will add “Needs: Design” (it would be important to also comment what we are looking for, language changes require a rep)
+  -	If we do not believe a change is needed or should happen in bicep, we will close out the issue with the proper explanation
+3. Design is added
+4. We will re-triage the issue, if the design is approved, we will add a “Contribution wanted” tag
+
+### How upvotes figure in
+
+There is no exact number of up votes that can trigger an issue going into either a milestone or contribution wanted as there are many factors at play. Every 10 up votes an issue gets, it will get re-triaged (this will be enforced by tag automation)
+Above all our priorities for Bicep are that it is a stable platform that helps you meet security, quality and compliance goals for your organization.
 
 ### Bicep Code
 

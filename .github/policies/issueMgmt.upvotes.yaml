@@ -1,0 +1,107 @@
+name: Auto-label Needs: Triage on 10+ upvotes
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  label-popular-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply label to issues with >=10 👍
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const core = require('@actions/core');
+            const github = require('@actions/github');
+
+            const labelName = "Needs: Triage";
+            const exclusionLabels = new Set([
+              "Duplicate", "Invalid", "Won’t Fix", "Wontfix",
+              "Out of Scope", "Spam", "Closed as Not Planned",
+              "Planned", "Backlog", "Investigating", "In Triage",
+              "Needs: Info"
+            ]);
+            const perPage = 100;
+
+            // Ensure label exists (idempotent create)
+            try {
+              await github.rest.issues.getLabel({
+                ...github.context.repo,
+                name: labelName
+              });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  ...github.context.repo,
+                  name: labelName,
+                  color: "D93F0B",
+                  description: "Auto-added when an issue has 10+ 👍 and needs triage"
+                });
+              } else {
+                throw e;
+              }
+            }
+
+            // Paginate through open issues
+            let page = 1;
+            while (true) {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                ...github.context.repo,
+                state: "open",
+                per_page: perPage,
+                page,
+                // Exclude PRs (they also show up as issues)
+                filters: "all"
+              });
+
+              if (!issues.length) break;
+
+              for (const issue of issues) {
+                if (issue.pull_request) continue; // skip PRs
+
+                const labels = new Set(issue.labels.map(l => (typeof l === 'string' ? l : l.name)));
+
+                // Skip if exclusion or already has workflow label
+                if ([...labels].some(l => exclusionLabels.has(l))) continue;
+
+                // Skip if already labeled
+                if (labels.has(labelName)) continue;
+
+                // Get reactions summary
+                const { data: reactions } = await github.rest.reactions.listForIssue({
+                  ...github.context.repo,
+                  issue_number: issue.number,
+                  per_page: 1 // we only need summary from headers
+                });
+
+                // GitHub API returns summary fields on the issue object as well, but ensure accuracy:
+                // Prefer issue.reactions["+1"] if present.
+                const plusOnes = issue.reactions && typeof issue.reactions["+1"] === "number"
+                  ? issue.reactions["+1"]
+                  : 0;
+
+                if (plusOnes >= 10) {
+                  await github.rest.issues.addLabels({
+                    ...github.context.repo,
+                    issue_number: issue.number,
+                    labels: [labelName]
+                  });
+
+                  // Optional: comment for transparency
+                  await github.rest.issues.createComment({
+                    ...github.context.repo,
+                    issue_number: issue.number,
+                    body: "This issue has reached 10+ 👍 and has been queued for triage. We’ll update within 2 business days—thanks for the input!"
+                  });
+                }
+              }
+
+              if (issues.length < perPage) break;
+              page++;
+            }
